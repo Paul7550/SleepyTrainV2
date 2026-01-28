@@ -1,0 +1,36 @@
+.connection-card {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid #eb0000; /* Red stripe */
+  border-radius: 4px 8px 8px 4px; /* Adjusted radius for the stripe */
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-family: Arial, sans-serif;
+}
+
+.time-info {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.duration-info {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.platform-info {
+  color: #333;
+}
+
+.details-link {
+  color: #eb0000;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.details-link:hover {
+  text-decoration: underline;
+}

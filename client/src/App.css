@@ -1,0 +1,7 @@
+.App {
+  /* You can add global styles here */
+}
+
+.bg-oebb-gradient {
+  background: linear-gradient(135deg, #eb0000 0%, #b30000 100%);
+}
