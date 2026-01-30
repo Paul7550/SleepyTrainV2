@@ -1,14 +1,30 @@
 import React, { useState } from 'react';
 
-function ConnectionSearch() {
+function ConnectionSearch({ onSearch }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    alert(`Searching for connections from ${from} to ${to}`);
-  };
 
+    if (!from || !to) {
+      alert('Bitte geben Sie Start- und Zielbahnhof ein.');
+      return;
+    }
+    try {
+      console.log(from,to);
+      const response = await fetch(`http://localhost:5000/api/trains/?start=${from}&stop=${to}`, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'}
+      });
+      if (!response.ok) {
+        throw new Error('Netzwerkantwort war nicht ok');
+      }
+      const data = await response.json();
+      console.log(data);
+    }catch (e){
+      console.log(e.message)
+    }
+  };
   const handleEarlier = () => {
     alert('Suche nach früheren Verbindungen...');
   };
@@ -62,7 +78,7 @@ function ConnectionSearch() {
 
           <div className="d-grid">
             <button type="submit" className="btn btn-danger">
-              Verbindung suchen
+              Suchen
             </button>
           </div>
         </form>

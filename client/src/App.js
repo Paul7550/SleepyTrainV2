@@ -38,12 +38,11 @@ function App() {
         
         {!selectedConnection ? (
           <>
-            <ConnectionSearch />
+            <ConnectionSearch/>
             <div className="mt-4">
-              <h5 className="text-center text-muted mb-3">Verbindungen</h5>
-              <ConnectionCard 
-                connection={testConnection} 
-                onSelect={setSelectedConnection} 
+              <ConnectionCard
+                connection={testConnection}
+                onSelect={setSelectedConnection}
               />
               <SkeletonCard />
             </div>
