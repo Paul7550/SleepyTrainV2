@@ -49,8 +49,32 @@ async function getVerbindungen(startname, zielname) {
   const {journeys} = await hafasClient.journeys(start.id, ziel.id, con);
   let trains = []
   journeys.forEach((j, i) => {
+    const departure = new Date(j.legs[0].departure);
+    const arrival = new Date(j.legs[j.legs.length - 1].arrival);
+    if(j.legs[0].stopovers === undefined){
+      j.legs[0].stopovers = [];
+    }
     trains[i] ={
         data:j,
+        departure:{
+          time:departure.toLocaleTimeString('de-AT', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          station:j.legs[0].origin.name,
+          platform:j.legs[0].departurePlatform
+        },
+        arrival:{
+          time:arrival.toLocaleTimeString('de-AT', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          station:j.legs[j.legs.length - 1].destination.name,
+          platform:j.legs[j.legs.length - 1].arrivalPlatform
+        },
+        duration:((arrival - departure) / 1000 / 60).toFixed(0),
+        trains:j.legs[0].line.name,
+        stops:j.legs[0].stopovers
     }
   });
   return trains;
