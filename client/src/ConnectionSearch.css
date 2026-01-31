@@ -21,25 +21,37 @@
   gap: 15px;
 }
 
+/* Restore Bootstrap-like input group styling */
 .input-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row !important; /* Force row direction */
+  align-items: stretch;
+  width: 100%;
 }
 
-.input-group label {
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-}
-
-.input-group input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
   font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
 }
 
-.search-button {
+.input-group .form-control {
+  position: relative;
+  flex: 1 1 auto;
+  width: 1%;
+  min-width: 0;
+}
+
+.btn-search {
   background-color: #eb0000; /* ÖBB Red */
   color: white;
   border: none;
@@ -49,8 +61,10 @@
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
+  width: 100%; /* Full width button */
 }
 
-.search-button:hover {
-  background-color: #c90000; /* Darker Red */
+.btn-search:hover {
+  background-color: #b30000; /* Darker Red */
+  color: white;
 }

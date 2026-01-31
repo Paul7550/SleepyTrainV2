@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Navbar from './Navbar';
 import ConnectionSearch from './ConnectionSearch';
@@ -11,6 +11,7 @@ function App() {
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [connections, setConnections] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   
   const testConnection = {
     departure: {
@@ -31,6 +32,14 @@ function App() {
       { station: 'Amstetten', time: '09:20' }
     ]
   };
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [isDarkMode]);
 
   const handleSearch = async (from, to) => {
     if (!from || !to) {
@@ -57,9 +66,21 @@ function App() {
     }
   };
 
+  const handleSettingsClick = () => {
+    alert('Einstellungen öffnen...');
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   return (
-    <div className="App">
-      <Navbar />
+    <div className={`App ${isDarkMode ? 'dark-mode' : ''}`}>
+      <Navbar 
+        onSettingsClick={handleSettingsClick} 
+        toggleDarkMode={toggleDarkMode}
+        isDarkMode={isDarkMode}
+      />
       <div className="container">
         {!selectedConnection ? (
           <>
