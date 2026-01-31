@@ -21,8 +21,10 @@ app.get('/api/trains',async function (req,res){
   try {
     const start = req.query.start;
     const ziel = req.query.stop;
-    console.log(start,ziel)
-    const result = await getVerbindungen(start, ziel);
+    const time = req.query.time;
+    
+    console.log(`Suche Verbindung von ${start} nach ${ziel} ab ${time || 'jetzt'}`);
+    const result = await getVerbindungen(start, ziel, time);
     res.json({
       status: "Erhalten",
       Trains: result,
@@ -42,11 +44,17 @@ function formatDuration(minutes) {
   return `${m}min`;
 }
 
-async function getVerbindungen(startname, zielname) {
+async function getVerbindungen(startname, zielname, timeParam) {
+  console.time("Locations Suche");
   const [startStations, zielStations] = await Promise.all([
-    hafasClient.locations(startname),
-    hafasClient.locations(zielname)
+    hafasClient.locations(startname, { results: 1 }),
+    hafasClient.locations(zielname, { results: 1 })
   ]);
+  console.timeEnd("Locations Suche");
+
+  if (!startStations.length || !zielStations.length) {
+    throw new Error("Bahnhof nicht gefunden");
+  }
 
   const start = startStations[0];
   const ziel = zielStations[0];
@@ -55,7 +63,15 @@ async function getVerbindungen(startname, zielname) {
     results: 5,
     stopovers: true,
   }
+  
+  if (timeParam) {
+    con.departure = new Date(parseInt(timeParam));
+  }
+  
+  console.time("Verbindungen Suche");
   const {journeys} = await hafasClient.journeys(start.id, ziel.id, con);
+  console.timeEnd("Verbindungen Suche");
+
   let trains = []
   journeys.forEach((j, i) => {
     const departure = new Date(j.legs[0].departure);
@@ -85,6 +101,7 @@ async function getVerbindungen(startname, zielname) {
             hour: '2-digit',
             minute: '2-digit'
           }),
+          iso: departure.toISOString(),
           station:j.legs[0].origin.name,
           platform:j.legs[0].departurePlatform
         },
@@ -93,6 +110,7 @@ async function getVerbindungen(startname, zielname) {
             hour: '2-digit',
             minute: '2-digit'
           }),
+          iso: arrival.toISOString(),
           station:j.legs[j.legs.length - 1].destination.name,
           platform:j.legs[j.legs.length - 1].arrivalPlatform
         },

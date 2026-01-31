@@ -12,6 +12,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [connections, setConnections] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchParams, setSearchParams] = useState({ from: '', to: '' });
   
   const testConnection = {
     departure: {
@@ -41,15 +42,19 @@ function App() {
     }
   }, [isDarkMode]);
 
-  const handleSearch = async (from, to) => {
+  const fetchConnections = async (from, to, time = null) => {
     if (!from || !to) {
       alert('Bitte geben Sie Start- und Zielbahnhof ein.');
       return;
     }
     setIsLoading(true);
     try {
-      console.log(from,to);
-      const response = await fetch(`http://localhost:5000/api/trains/?start=${from}&stop=${to}`, {
+      let url = `http://localhost:5000/api/trains/?start=${from}&stop=${to}`;
+      if (time) {
+        url += `&time=${time}`;
+      }
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: {'Content-Type': 'application/json'}
       });
@@ -63,6 +68,35 @@ function App() {
       console.log(e.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSearch = (from, to) => {
+    setSearchParams({ from, to });
+    fetchConnections(from, to);
+  };
+
+  const handleEarlier = () => {
+    if (connections && connections.length > 0) {
+      // Use the departure time of the first connection to find earlier trains
+      // Subtracting 1 hour roughly to search before
+      const firstDeparture = new Date(connections[0].departure.iso);
+      const earlierTime = firstDeparture.getTime() - 60 * 60 * 1000; 
+      fetchConnections(searchParams.from, searchParams.to, earlierTime);
+    } else {
+        alert("Bitte suchen Sie zuerst nach einer Verbindung.");
+    }
+  };
+
+  const handleLater = () => {
+    if (connections && connections.length > 0) {
+      // Use the departure time of the last connection to find later trains
+      const lastDeparture = new Date(connections[connections.length - 1].departure.iso);
+      // Adding 1 minute to avoid duplicate of the last train
+      const laterTime = lastDeparture.getTime() + 60 * 1000;
+      fetchConnections(searchParams.from, searchParams.to, laterTime);
+    } else {
+        alert("Bitte suchen Sie zuerst nach einer Verbindung.");
     }
   };
 
@@ -84,7 +118,11 @@ function App() {
       <div className="container">
         {!selectedConnection ? (
           <>
-            <ConnectionSearch onSearch={handleSearch} />
+            <ConnectionSearch 
+                onSearch={handleSearch} 
+                onEarlier={handleEarlier}
+                onLater={handleLater}
+            />
             <div className="mt-4">
               {isLoading ? (
                 [...Array(5)].map((_, i) => <SkeletonCard key={i} />)
