@@ -3,28 +3,7 @@ import React, { useState } from 'react';
 function ConnectionSearch({ onSearch }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const handleSearch = async (e) => {
-    e.preventDefault();
 
-    if (!from || !to) {
-      alert('Bitte geben Sie Start- und Zielbahnhof ein.');
-      return;
-    }
-    try {
-      console.log(from,to);
-      const response = await fetch(`http://localhost:5000/api/trains/?start=${from}&stop=${to}`, {
-        method: 'GET',
-        headers: {'Content-Type': 'application/json'}
-      });
-      if (!response.ok) {
-        throw new Error('Netzwerkantwort war nicht ok');
-      }
-      const data = await response.json();
-      console.log(data);
-    }catch (e){
-      console.log(e.message)
-    }
-  };
   const handleEarlier = () => {
     alert('Suche nach früheren Verbindungen...');
   };
@@ -33,11 +12,24 @@ function ConnectionSearch({ onSearch }) {
     alert('Suche nach späteren Verbindungen...');
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(from, to);
+    }
+  };
+
+  const handleSwap = () => {
+    const temp = from;
+    setFrom(to);
+    setTo(temp);
+  };
+
   return (
     <div className="card shadow-sm mx-auto mt-4" style={{ maxWidth: '500px' }}>
       <div className="card-body">
         <h4 className="card-title text-center mb-4">Verbindung suchen</h4>
-        <form onSubmit={handleSearch}>
+        <form onSubmit={handleSubmit}>
           <div className="input-group mb-2">
             <span className="input-group-text bg-white border-end-0">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#eb0000" className="bi bi-geo-alt-fill" viewBox="0 0 16 16">
@@ -55,8 +47,15 @@ function ConnectionSearch({ onSearch }) {
             />
           </div>
           
-          <div className="text-center text-danger fw-bold my-1" style={{ fontSize: '1.5rem', lineHeight: '1' }}>
-            &darr;
+          <div className="text-center my-1">
+            <button 
+              type="button" 
+              className="btn btn-link text-danger p-0" 
+              onClick={handleSwap}
+              style={{ fontSize: '1.5rem', lineHeight: '1', textDecoration: 'none' }}
+            >
+              &#x21c5;
+            </button>
           </div>
 
           <div className="input-group mb-4">
