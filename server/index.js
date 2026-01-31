@@ -33,6 +33,15 @@ app.get('/api/trains',async function (req,res){
   }
 })
 
+function formatDuration(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  if (h > 0) {
+    return `${h}h ${m}min`;
+  }
+  return `${m}min`;
+}
+
 async function getVerbindungen(startname, zielname) {
   const [startStations, zielStations] = await Promise.all([
     hafasClient.locations(startname),
@@ -51,9 +60,24 @@ async function getVerbindungen(startname, zielname) {
   journeys.forEach((j, i) => {
     const departure = new Date(j.legs[0].departure);
     const arrival = new Date(j.legs[j.legs.length - 1].arrival);
-    if(j.legs[0].stopovers === undefined){
-      j.legs[0].stopovers = [];
+    let stops = []
+    if (j.legs[0].stopovers) {
+      for (let k = 0; k < j.legs[0].stopovers.length; k++) {
+        const stopTime = j.legs[0].stopovers[k].departure || j.legs[0].stopovers[k].arrival;
+        if (stopTime) {
+            stops[k] = {
+                station: j.legs[0].stopovers[k].stop.name,
+                time: new Date(stopTime).toLocaleTimeString('de-AT', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+            }
+        }
+      }
     }
+    
+    const durationMinutes = (arrival - departure) / 1000 / 60;
+
     trains[i] ={
         data:j,
         departure:{
@@ -72,9 +96,9 @@ async function getVerbindungen(startname, zielname) {
           station:j.legs[j.legs.length - 1].destination.name,
           platform:j.legs[j.legs.length - 1].arrivalPlatform
         },
-        duration:((arrival - departure) / 1000 / 60).toFixed(0),
-        trains:j.legs[0].line.name,
-        stops:j.legs[0].stopovers
+        duration: formatDuration(durationMinutes),
+        trains: [j.legs[0].line.name],
+        stops: stops
     }
   });
   return trains;

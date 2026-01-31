@@ -16,8 +16,10 @@ function ConnectionCard({ connection, onSelect }) {
           <span className="mx-2" style={{ fontSize: '1.5rem', color: '#6c757d', lineHeight: '1' }}>→</span>
           <span>{connection.arrival.time}</span>
         </div>
-        <div className="platform-info" style={{fontSize: '1.1rem', fontWeight: 'bold', color: '#333'}}>
-          Gleis {connection.departure.platform}
+        <div className="platform-info">
+          <span className="platform-badge-card">
+            Gl. {connection.departure.platform}
+          </span>
         </div>
       </div>
 

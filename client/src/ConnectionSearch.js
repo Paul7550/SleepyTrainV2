@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './ConnectionSearch.css';
 
 function ConnectionSearch({ onSearch }) {
   const [from, setFrom] = useState('');
@@ -76,7 +77,7 @@ function ConnectionSearch({ onSearch }) {
           </div>
 
           <div className="d-grid">
-            <button type="submit" className="btn btn-danger">
+            <button type="submit" className="btn btn-search">
               Suchen
             </button>
           </div>
