@@ -74,6 +74,17 @@ body.dark-mode {
 .dark-mode .input-group-text {
   background-color: #2c2c2c !important;
   border-color: #444;
+  color: #e0e0e0; /* Added text color for icons */
+}
+
+/* Fix for SVG icons inside input-group-text in dark mode */
+.dark-mode .input-group-text svg {
+  fill: #e0e0e0;
+}
+
+/* Specific fix for the red location icon if needed, or keep it red */
+.dark-mode .input-group-text svg.bi-geo-alt-fill[fill="#eb0000"] {
+  fill: #eb0000;
 }
 
 .dark-mode .btn-outline-secondary {
@@ -131,6 +142,23 @@ body.dark-mode {
 
 .dark-mode .stops-toggle-modern button:hover {
   background-color: rgba(235, 0, 0, 0.1);
+}
+
+.dark-mode .transfer-row {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .transfer-details {
+  color: #ff5252;
+}
+
+.dark-mode .transfer-next-train {
+  color: #aaa;
+}
+
+.dark-mode .dot-transfer {
+  background-color: #1e1e1e;
+  border-color: #aaa;
 }
 
 /* Dropdown Dark Mode */

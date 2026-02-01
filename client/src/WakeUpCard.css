@@ -1,0 +1,179 @@
+.wake-up-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 20px auto;
+  max-width: 600px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+.wake-up-card .card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #eb0000;
+  margin-bottom: 10px;
+}
+
+.wake-up-card .arrival-info {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.wake-up-card .options-label {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.wake-up-card .options-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.wake-up-card .option-btn {
+  background-color: #f0f0f0;
+  border: 2px solid #f0f0f0;
+  color: #333;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.wake-up-card .option-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.wake-up-card .option-btn.active {
+  background-color: #fff0f0;
+  border-color: #eb0000;
+  color: #eb0000;
+}
+
+.custom-input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.custom-input {
+  width: 80px;
+  padding: 8px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.custom-input:focus {
+  outline: none;
+  border-color: #eb0000;
+}
+
+.custom-input-label {
+  font-weight: 600;
+  color: #555;
+}
+
+.wake-up-card .wake-up-time-display {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 25px;
+}
+
+.wake-up-card .wake-up-label {
+  font-size: 1rem;
+  color: #666;
+  margin-right: 10px;
+}
+
+.wake-up-card .wake-up-time {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.wake-up-card .btn-confirm {
+  background-color: #eb0000;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.wake-up-card .btn-confirm:hover {
+  background-color: #b30000;
+}
+
+/* Dark Mode */
+.dark-mode .wake-up-card {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.dark-mode .wake-up-card .arrival-info {
+  color: #aaa;
+}
+
+.dark-mode .wake-up-card .options-label {
+  color: #ccc;
+}
+
+.dark-mode .wake-up-card .option-btn {
+  background-color: #333;
+  border-color: #333;
+  color: #e0e0e0;
+}
+
+.dark-mode .wake-up-card .option-btn:hover {
+  background-color: #444;
+}
+
+.dark-mode .wake-up-card .option-btn.active {
+  background-color: rgba(235, 0, 0, 0.1);
+  border-color: #eb0000;
+  color: #eb0000;
+}
+
+.dark-mode .custom-input {
+  background-color: #2c2c2c;
+  border-color: #444;
+  color: #fff;
+}
+
+.dark-mode .custom-input:focus {
+  border-color: #eb0000;
+}
+
+.dark-mode .custom-input-label {
+  color: #ccc;
+}
+
+.dark-mode .wake-up-card .wake-up-time-display {
+  background-color: #2c2c2c;
+}
+
+.dark-mode .wake-up-card .wake-up-label {
+  color: #aaa;
+}
+
+.dark-mode .wake-up-card .wake-up-time {
+  color: #fff;
+}

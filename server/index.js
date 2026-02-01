@@ -21,8 +21,10 @@ app.get('/api/trains',async function (req,res){
   try {
     const start = req.query.start;
     const ziel = req.query.stop;
-    console.log(start,ziel)
-    const result = await getVerbindungen(start, ziel);
+    const time = req.query.time;
+    
+    console.log(`Suche Verbindung von ${start} nach ${ziel} ab ${time || 'jetzt'}`);
+    const result = await getVerbindungen(start, ziel, time);
     res.json({
       status: "Erhalten",
       Trains: result,
@@ -42,11 +44,23 @@ function formatDuration(minutes) {
   return `${m}min`;
 }
 
-async function getVerbindungen(startname, zielname) {
+// Helper to remove numbers from train names
+const formatTrainName = (name) => {
+    if (!name) return '';
+    return name.replace(/\s*\d+\s*/g, ' ').trim();
+}
+
+async function getVerbindungen(startname, zielname, timeParam) {
+  console.time("Locations Suche");
   const [startStations, zielStations] = await Promise.all([
-    hafasClient.locations(startname),
-    hafasClient.locations(zielname)
+    hafasClient.locations(startname, { results: 1 }),
+    hafasClient.locations(zielname, { results: 1 })
   ]);
+  console.timeEnd("Locations Suche");
+
+  if (!startStations.length || !zielStations.length) {
+    throw new Error("Bahnhof nicht gefunden");
+  }
 
   const start = startStations[0];
   const ziel = zielStations[0];
@@ -55,26 +69,67 @@ async function getVerbindungen(startname, zielname) {
     results: 5,
     stopovers: true,
   }
+  
+  if (timeParam) {
+    con.departure = new Date(parseInt(timeParam));
+  }
+  
+  console.time("Verbindungen Suche");
   const {journeys} = await hafasClient.journeys(start.id, ziel.id, con);
+  console.timeEnd("Verbindungen Suche");
+
   let trains = []
   journeys.forEach((j, i) => {
     const departure = new Date(j.legs[0].departure);
     const arrival = new Date(j.legs[j.legs.length - 1].arrival);
-    let stops = []
-    if (j.legs[0].stopovers) {
-      for (let k = 0; k < j.legs[0].stopovers.length; k++) {
-        const stopTime = j.legs[0].stopovers[k].departure || j.legs[0].stopovers[k].arrival;
-        if (stopTime) {
-            stops[k] = {
-                station: j.legs[0].stopovers[k].stop.name,
-                time: new Date(stopTime).toLocaleTimeString('de-AT', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }),
-            }
+    
+    let allStops = [];
+    let trainNames = [];
+
+    j.legs.forEach((leg, legIndex) => {
+        // Collect train names
+        if (leg.line && leg.line.name) {
+             const formattedName = formatTrainName(leg.line.name);
+             if (!trainNames.includes(formattedName)) {
+                 trainNames.push(formattedName);
+             }
         }
-      }
-    }
+
+        // Intermediate stops
+        if (leg.stopovers) {
+            leg.stopovers.forEach(stop => {
+                const stopTime = stop.departure || stop.arrival;
+                if (stopTime) {
+                    allStops.push({
+                        station: stop.stop.name,
+                        time: new Date(stopTime).toLocaleTimeString('de-AT', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }),
+                        type: 'stop'
+                    });
+                }
+            });
+        }
+
+        // Transfer logic
+        if (legIndex < j.legs.length - 1) {
+            const nextLeg = j.legs[legIndex + 1];
+            const arrivalTime = new Date(leg.arrival);
+            const departureTime = new Date(nextLeg.departure);
+            const duration = Math.round((departureTime - arrivalTime) / 60000);
+            
+            allStops.push({
+                station: leg.destination.name,
+                arrival: arrivalTime.toLocaleTimeString('de-AT', {hour: '2-digit', minute: '2-digit'}),
+                departure: departureTime.toLocaleTimeString('de-AT', {hour: '2-digit', minute: '2-digit'}),
+                duration: duration,
+                type: 'transfer',
+                platform: nextLeg.departurePlatform,
+                trainTo: nextLeg.line ? formatTrainName(nextLeg.line.name) : 'Weiterfahrt'
+            });
+        }
+    });
     
     const durationMinutes = (arrival - departure) / 1000 / 60;
 
@@ -85,6 +140,7 @@ async function getVerbindungen(startname, zielname) {
             hour: '2-digit',
             minute: '2-digit'
           }),
+          iso: departure.toISOString(),
           station:j.legs[0].origin.name,
           platform:j.legs[0].departurePlatform
         },
@@ -93,12 +149,13 @@ async function getVerbindungen(startname, zielname) {
             hour: '2-digit',
             minute: '2-digit'
           }),
+          iso: arrival.toISOString(),
           station:j.legs[j.legs.length - 1].destination.name,
           platform:j.legs[j.legs.length - 1].arrivalPlatform
         },
         duration: formatDuration(durationMinutes),
-        trains: [j.legs[0].line.name],
-        stops: stops
+        trains: trainNames,
+        stops: allStops
     }
   });
   return trains;

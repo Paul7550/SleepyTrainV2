@@ -1,17 +1,9 @@
 import React, { useState } from 'react';
 import './ConnectionSearch.css';
 
-function ConnectionSearch({ onSearch }) {
+function ConnectionSearch({ onSearch, onEarlier, onLater }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-
-  const handleEarlier = () => {
-    alert('Suche nach früheren Verbindungen...');
-  };
-
-  const handleLater = () => {
-    alert('Suche nach späteren Verbindungen...');
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -84,10 +76,10 @@ function ConnectionSearch({ onSearch }) {
         </form>
         
         <div className="d-flex justify-content-between mt-3">
-          <button className="btn btn-outline-secondary" onClick={handleEarlier}>
+          <button className="btn btn-outline-secondary" onClick={onEarlier}>
             &larr; Früher
           </button>
-          <button className="btn btn-outline-secondary" onClick={handleLater}>
+          <button className="btn btn-outline-secondary" onClick={onLater}>
             Später &rarr;
           </button>
         </div>
