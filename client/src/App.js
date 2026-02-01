@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import Navbar from './Navbar';
 import ConnectionSearch from './ConnectionSearch';
@@ -6,6 +6,8 @@ import SleepyTrain from './SleepyTrain';
 import SkeletonCard from './SkeletonCard';
 import ConnectionCard from './ConnectionCard';
 import ConnectionDetail from './ConnectionDetail';
+import AlarmBanner from './AlarmBanner';
+import AlarmRinging from './AlarmRinging';
 
 function App() {
   const [selectedConnection, setSelectedConnection] = useState(null);
@@ -13,6 +15,10 @@ function App() {
   const [connections, setConnections] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchParams, setSearchParams] = useState({ from: '', to: '' });
+  const [activeAlarm, setActiveAlarm] = useState(null);
+  const [isAlarmRinging, setIsAlarmRinging] = useState(false);
+  const [alarmTimerId, setAlarmTimerId] = useState(null);
+  const audioRef = useRef(null);
   
   const testConnection = {
     departure: {
@@ -78,8 +84,6 @@ function App() {
 
   const handleEarlier = () => {
     if (connections && connections.length > 0) {
-      // Use the departure time of the first connection to find earlier trains
-      // Subtracting 1 hour roughly to search before
       const firstDeparture = new Date(connections[0].departure.iso);
       const earlierTime = firstDeparture.getTime() - 60 * 60 * 1000; 
       fetchConnections(searchParams.from, searchParams.to, earlierTime);
@@ -90,9 +94,7 @@ function App() {
 
   const handleLater = () => {
     if (connections && connections.length > 0) {
-      // Use the departure time of the last connection to find later trains
       const lastDeparture = new Date(connections[connections.length - 1].departure.iso);
-      // Adding 1 minute to avoid duplicate of the last train
       const laterTime = lastDeparture.getTime() + 60 * 1000;
       fetchConnections(searchParams.from, searchParams.to, laterTime);
     } else {
@@ -108,6 +110,54 @@ function App() {
     setIsDarkMode(!isDarkMode);
   };
 
+  const handleSetAlarm = (alarm) => {
+    // Clear any existing alarm
+    if (alarmTimerId) {
+      clearTimeout(alarmTimerId);
+    }
+
+    const arrivalTime = new Date(alarm.connection.arrival.iso);
+    const wakeUpTime = new Date(arrivalTime.getTime() - alarm.offset * 60000);
+    const timeToWake = wakeUpTime.getTime() - Date.now();
+
+    if (timeToWake > 0) {
+      const timerId = setTimeout(() => {
+        setIsAlarmRinging(true);
+        if (audioRef.current) {
+          audioRef.current.play();
+        }
+      }, timeToWake);
+      setAlarmTimerId(timerId);
+    }
+
+    setActiveAlarm(alarm);
+    setSelectedConnection(null); // Go back to the list view
+  };
+
+  const handleCancelAlarm = () => {
+    if (alarmTimerId) {
+      clearTimeout(alarmTimerId);
+    }
+    setActiveAlarm(null);
+    setAlarmTimerId(null);
+  };
+
+  const handleShowAlarmDetails = () => {
+    if (activeAlarm) {
+      setSelectedConnection(activeAlarm.connection);
+    }
+  };
+
+  const handleStopAlarm = () => {
+    setIsAlarmRinging(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setActiveAlarm(null);
+    setAlarmTimerId(null);
+  };
+
   return (
     <div className={`App ${isDarkMode ? 'dark-mode' : ''}`}>
       <Navbar 
@@ -115,6 +165,14 @@ function App() {
         toggleDarkMode={toggleDarkMode}
         isDarkMode={isDarkMode}
       />
+      <AlarmBanner 
+        alarm={activeAlarm} 
+        onCancel={handleCancelAlarm} 
+        onShowDetails={handleShowAlarmDetails} 
+      />
+      {isAlarmRinging && <AlarmRinging onStop={handleStopAlarm} />}
+      <audio ref={audioRef} src="/sounds/alarm.mp3" loop />
+
       <div className="container">
         {!selectedConnection ? (
           <>
@@ -151,6 +209,7 @@ function App() {
           <ConnectionDetail 
             connection={selectedConnection} 
             onBack={() => setSelectedConnection(null)} 
+            onConfirmAlarm={handleSetAlarm}
           />
         )}
 

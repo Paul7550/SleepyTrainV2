@@ -1,0 +1,84 @@
+.alarm-ringing-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(10px);
+}
+
+.alarm-ringing-box {
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: pulse-box 1.5s infinite;
+}
+
+.alarm-ringing-icon {
+  font-size: 5rem;
+  animation: ring 1s infinite;
+}
+
+.alarm-ringing-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #eb0000;
+  margin: 10px 0;
+}
+
+.alarm-ringing-text {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+.btn-stop-alarm {
+  background-color: #eb0000;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-stop-alarm:hover {
+  background-color: #b30000;
+  transform: scale(1.05);
+}
+
+/* Dark Mode */
+.dark-mode .alarm-ringing-box {
+  background-color: #1e1e1e;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.dark-mode .alarm-ringing-text {
+  color: #ccc;
+}
+
+/* Animations */
+@keyframes pulse-box {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ring {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(20deg); }
+  20% { transform: rotate(-15deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-5deg); }
+  50% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}

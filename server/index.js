@@ -44,6 +44,12 @@ function formatDuration(minutes) {
   return `${m}min`;
 }
 
+// Helper to remove numbers from train names
+const formatTrainName = (name) => {
+    if (!name) return '';
+    return name.replace(/\s*\d+\s*/g, ' ').trim();
+}
+
 async function getVerbindungen(startname, zielname, timeParam) {
   console.time("Locations Suche");
   const [startStations, zielStations] = await Promise.all([
@@ -76,21 +82,54 @@ async function getVerbindungen(startname, zielname, timeParam) {
   journeys.forEach((j, i) => {
     const departure = new Date(j.legs[0].departure);
     const arrival = new Date(j.legs[j.legs.length - 1].arrival);
-    let stops = []
-    if (j.legs[0].stopovers) {
-      for (let k = 0; k < j.legs[0].stopovers.length; k++) {
-        const stopTime = j.legs[0].stopovers[k].departure || j.legs[0].stopovers[k].arrival;
-        if (stopTime) {
-            stops[k] = {
-                station: j.legs[0].stopovers[k].stop.name,
-                time: new Date(stopTime).toLocaleTimeString('de-AT', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }),
-            }
+    
+    let allStops = [];
+    let trainNames = [];
+
+    j.legs.forEach((leg, legIndex) => {
+        // Collect train names
+        if (leg.line && leg.line.name) {
+             const formattedName = formatTrainName(leg.line.name);
+             if (!trainNames.includes(formattedName)) {
+                 trainNames.push(formattedName);
+             }
         }
-      }
-    }
+
+        // Intermediate stops
+        if (leg.stopovers) {
+            leg.stopovers.forEach(stop => {
+                const stopTime = stop.departure || stop.arrival;
+                if (stopTime) {
+                    allStops.push({
+                        station: stop.stop.name,
+                        time: new Date(stopTime).toLocaleTimeString('de-AT', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        }),
+                        type: 'stop'
+                    });
+                }
+            });
+        }
+
+        // Transfer logic
+        if (legIndex < j.legs.length - 1) {
+            const nextLeg = j.legs[legIndex + 1];
+            const arrivalTime = new Date(leg.arrival);
+            const departureTime = new Date(nextLeg.departure);
+            const duration = Math.round((departureTime - arrivalTime) / 60000);
+            
+            allStops.push({
+                station: leg.destination.name,
+                arrival: arrivalTime.toLocaleTimeString('de-AT', {hour: '2-digit', minute: '2-digit'}),
+                departure: departureTime.toLocaleTimeString('de-AT', {hour: '2-digit', minute: '2-digit'}),
+                duration: duration,
+                type: 'transfer',
+                platform: nextLeg.departurePlatform,
+                trainTo: nextLeg.line ? formatTrainName(nextLeg.line.name) : 'Weiterfahrt'
+            });
+        }
+    });
     
     const durationMinutes = (arrival - departure) / 1000 / 60;
 
@@ -115,8 +154,8 @@ async function getVerbindungen(startname, zielname, timeParam) {
           platform:j.legs[j.legs.length - 1].arrivalPlatform
         },
         duration: formatDuration(durationMinutes),
-        trains: [j.legs[0].line.name],
-        stops: stops
+        trains: trainNames,
+        stops: allStops
     }
   });
   return trains;
