@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './ConnectionSearch.css';
 
-function ConnectionSearch({ onSearch, onEarlier, onLater }) {
+function ConnectionSearch({ onSearch, onEarlier, onLater, t }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
 
@@ -21,7 +21,7 @@ function ConnectionSearch({ onSearch, onEarlier, onLater }) {
   return (
     <div className="card shadow-sm mx-auto mt-4" style={{ maxWidth: '500px' }}>
       <div className="card-body">
-        <h4 className="card-title text-center mb-4">Verbindung suchen</h4>
+        <h4 className="card-title text-center mb-4">{t.searchTitle}</h4>
         <form onSubmit={handleSubmit}>
           <div className="input-group mb-2">
             <span className="input-group-text bg-white border-end-0">
@@ -35,7 +35,7 @@ function ConnectionSearch({ onSearch, onEarlier, onLater }) {
               id="from"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              placeholder="Von (z.B. Wien Hbf)"
+              placeholder={t.fromPlaceholder}
               required
             />
           </div>
@@ -63,24 +63,24 @@ function ConnectionSearch({ onSearch, onEarlier, onLater }) {
               id="to"
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              placeholder="Nach (z.B. Linz Hbf)"
+              placeholder={t.toPlaceholder}
               required
             />
           </div>
 
           <div className="d-grid">
             <button type="submit" className="btn btn-search">
-              Suchen
+              {t.searchButton}
             </button>
           </div>
         </form>
         
         <div className="d-flex justify-content-between mt-3">
           <button className="btn btn-outline-secondary" onClick={onEarlier}>
-            &larr; Früher
+            &larr; {t.earlier}
           </button>
           <button className="btn btn-outline-secondary" onClick={onLater}>
-            Später &rarr;
+            {t.later} &rarr;
           </button>
         </div>
       </div>
