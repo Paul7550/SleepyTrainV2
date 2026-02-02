@@ -1,7 +1,7 @@
 import React from 'react';
 import './AlarmBanner.css';
 
-function AlarmBanner({ alarm, onCancel, onShowDetails }) {
+function AlarmBanner({ alarm, onCancel, onShowDetails, t }) {
   if (!alarm) return null;
 
   const handleBannerClick = (e) => {
@@ -16,11 +16,11 @@ function AlarmBanner({ alarm, onCancel, onShowDetails }) {
     <div className="alarm-banner" onClick={handleBannerClick}>
       <div className="alarm-icon">⏰</div>
       <div className="alarm-info">
-        <div className="alarm-title">Wecker gestellt</div>
-        <div className="alarm-time">{alarm.wakeUpTime} Uhr</div>
+        <div className="alarm-title">{t.alarmSet}</div>
+        <div className="alarm-time">{alarm.wakeUpTime} {t.clock}</div>
       </div>
       <div className="alarm-actions">
-        <button className="alarm-details-btn" onClick={onShowDetails}>Details</button>
+        <button className="alarm-details-btn" onClick={onShowDetails}>{t.details}</button>
         <button className="alarm-cancel-btn" onClick={onCancel}>&times;</button>
       </div>
     </div>

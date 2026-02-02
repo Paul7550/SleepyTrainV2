@@ -1,12 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import './WakeUpCard.css';
 
-function WakeUpCard({ connection, onConfirmAlarm }) {
-  const [wakeUpOffset, setWakeUpOffset] = useState(15); // Default to 15 minutes
+function WakeUpCard({ connection, onConfirmAlarm, defaultOffset, t }) {
+  const [wakeUpOffset, setWakeUpOffset] = useState(defaultOffset || 15); 
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customValue, setCustomValue] = useState(30); // Default for custom input
+  const [customValue, setCustomValue] = useState(30); 
 
-  const presetOptions = [5, 15, 20];
+  const presetOptions = [5, 10, 15, 20];
+
+  useEffect(() => {
+    if (defaultOffset) {
+        setWakeUpOffset(defaultOffset);
+    }
+  }, [defaultOffset]);
 
   const wakeUpTime = useMemo(() => {
     if (!connection?.arrival?.iso || isNaN(wakeUpOffset) || wakeUpOffset <= 0) return '--:--';
@@ -53,12 +59,12 @@ function WakeUpCard({ connection, onConfirmAlarm }) {
 
   return (
     <div className="wake-up-card">
-      <h5 className="card-title">Weckzeit einstellen</h5>
+      <h5 className="card-title">{t.setWakeUpTime}</h5>
       <p className="arrival-info">
-        Ankunft in {connection.arrival.station} um {connection.arrival.time} Uhr.
+        {t.arrivalIn} {connection.arrival.station} {t.at} {connection.arrival.time} {t.clock}.
       </p>
       
-      <div className="options-label">Wecken vor Ankunft:</div>
+      <div className="options-label">{t.wakeUpBefore}</div>
       <div className="options-container">
         {presetOptions.map(option => (
           <button 
@@ -66,14 +72,14 @@ function WakeUpCard({ connection, onConfirmAlarm }) {
             className={`option-btn ${wakeUpOffset === option && !showCustomInput ? 'active' : ''}`}
             onClick={() => handlePresetClick(option)}
           >
-            {option} min
+            {option} {t.min}
           </button>
         ))}
         <button
           className={`option-btn ${showCustomInput ? 'active' : ''}`}
           onClick={handleCustomClick}
         >
-          Custom
+          {t.custom}
         </button>
       </div>
 
@@ -86,17 +92,17 @@ function WakeUpCard({ connection, onConfirmAlarm }) {
             className="custom-input"
             min="1"
           />
-          <span className="custom-input-label">min</span>
+          <span className="custom-input-label">{t.min}</span>
         </div>
       )}
 
       <div className="wake-up-time-display">
-        <span className="wake-up-label">Weckzeit:</span>
-        <span className="wake-up-time">{wakeUpTime} Uhr</span>
+        <span className="wake-up-label">{t.wakeUpTime}</span>
+        <span className="wake-up-time">{wakeUpTime} {t.clock}</span>
       </div>
 
       <button className="btn-confirm" onClick={handleConfirm}>
-        Bestätigen
+        {t.confirm}
       </button>
     </div>
   );

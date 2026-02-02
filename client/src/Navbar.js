@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function Navbar({ onSettingsClick, toggleDarkMode, isDarkMode }) {
+function Navbar({ onSettingsClick, toggleDarkMode, isDarkMode, t }) {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleGearClick = () => {
@@ -27,7 +27,7 @@ function Navbar({ onSettingsClick, toggleDarkMode, isDarkMode }) {
                 <li>
                   <button className="dropdown-item d-flex align-items-center" onClick={() => { onSettingsClick(); setShowDropdown(false); }}>
                     <span style={{ marginRight: '10px', fontSize: '1.2rem' }}>&#9881;</span>
-                    Einstellungen
+                    {t.settings}
                   </button>
                 </li>
                 <li><hr className="dropdown-divider" /></li>
@@ -36,7 +36,7 @@ function Navbar({ onSettingsClick, toggleDarkMode, isDarkMode }) {
                     <span style={{ marginRight: '10px', fontSize: '1.2rem' }}>
                       {isDarkMode ? '☀️' : '🌙'}
                     </span>
-                    {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                    {isDarkMode ? t.lightMode : t.darkMode}
                   </button>
                 </li>
               </ul>

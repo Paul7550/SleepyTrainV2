@@ -8,6 +8,8 @@ import ConnectionCard from './ConnectionCard';
 import ConnectionDetail from './ConnectionDetail';
 import AlarmBanner from './AlarmBanner';
 import AlarmRinging from './AlarmRinging';
+import Settings from './Settings';
+import { translations } from './translations';
 
 function App() {
   const [selectedConnection, setSelectedConnection] = useState(null);
@@ -18,7 +20,18 @@ function App() {
   const [activeAlarm, setActiveAlarm] = useState(null);
   const [isAlarmRinging, setIsAlarmRinging] = useState(false);
   const [alarmTimerId, setAlarmTimerId] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState({
+    defaultOffset: 10,
+    language: 'de',
+    sound: 'alarm.mp3',
+    vibration: true,
+    volume: 80,
+    isDarkMode: false
+  });
+
   const audioRef = useRef(null);
+  const t = translations[settings.language];
   
   const testConnection = {
     departure: {
@@ -41,6 +54,13 @@ function App() {
   };
 
   useEffect(() => {
+    // Sync dark mode state with settings
+    if (settings.isDarkMode !== isDarkMode) {
+        setIsDarkMode(settings.isDarkMode);
+    }
+  }, [settings.isDarkMode]);
+
+  useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add('dark-mode');
     } else {
@@ -50,7 +70,7 @@ function App() {
 
   const fetchConnections = async (from, to, time = null) => {
     if (!from || !to) {
-      alert('Bitte geben Sie Start- und Zielbahnhof ein.');
+      alert(t.alertStartDest);
       return;
     }
     setIsLoading(true);
@@ -65,7 +85,7 @@ function App() {
         headers: {'Content-Type': 'application/json'}
       });
       if (!response.ok) {
-        throw new Error('Netzwerkantwort war nicht ok');
+        throw new Error(t.networkError);
       }
       const data = await response.json();
       console.log(data);
@@ -88,7 +108,7 @@ function App() {
       const earlierTime = firstDeparture.getTime() - 60 * 60 * 1000; 
       fetchConnections(searchParams.from, searchParams.to, earlierTime);
     } else {
-        alert("Bitte suchen Sie zuerst nach einer Verbindung.");
+        alert(t.alertSearchFirst);
     }
   };
 
@@ -98,16 +118,18 @@ function App() {
       const laterTime = lastDeparture.getTime() + 60 * 1000;
       fetchConnections(searchParams.from, searchParams.to, laterTime);
     } else {
-        alert("Bitte suchen Sie zuerst nach einer Verbindung.");
+        alert(t.alertSearchFirst);
     }
   };
 
   const handleSettingsClick = () => {
-    alert('Einstellungen öffnen...');
+    setShowSettings(true);
   };
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    setSettings(prev => ({ ...prev, isDarkMode: newMode }));
   };
 
   const handleSetAlarm = (alarm) => {
@@ -124,6 +146,7 @@ function App() {
       const timerId = setTimeout(() => {
         setIsAlarmRinging(true);
         if (audioRef.current) {
+          audioRef.current.volume = settings.volume / 100;
           audioRef.current.play();
         }
       }, timeToWake);
@@ -164,22 +187,32 @@ function App() {
         onSettingsClick={handleSettingsClick} 
         toggleDarkMode={toggleDarkMode}
         isDarkMode={isDarkMode}
+        t={t}
       />
       <AlarmBanner 
         alarm={activeAlarm} 
         onCancel={handleCancelAlarm} 
         onShowDetails={handleShowAlarmDetails} 
+        t={t}
       />
-      {isAlarmRinging && <AlarmRinging onStop={handleStopAlarm} />}
-      <audio ref={audioRef} src="/sounds/alarm.mp3" loop />
+      {isAlarmRinging && <AlarmRinging onStop={handleStopAlarm} t={t} />}
+      <audio ref={audioRef} src={`/sounds/${settings.sound}`} loop />
 
       <div className="container">
-        {!selectedConnection ? (
+        {showSettings ? (
+            <Settings 
+                onBack={() => setShowSettings(false)}
+                settings={settings}
+                onUpdateSettings={setSettings}
+                t={t}
+            />
+        ) : !selectedConnection ? (
           <>
             <ConnectionSearch 
                 onSearch={handleSearch} 
                 onEarlier={handleEarlier}
                 onLater={handleLater}
+                t={t}
             />
             <div className="mt-4">
               {isLoading ? (
@@ -210,12 +243,16 @@ function App() {
             connection={selectedConnection} 
             onBack={() => setSelectedConnection(null)} 
             onConfirmAlarm={handleSetAlarm}
+            defaultOffset={settings.defaultOffset}
+            t={t}
           />
         )}
 
-        <div style={{ maxWidth: '300px', margin: '0 auto' }}>
-          <SleepyTrain />
-        </div>
+        {!showSettings && (
+            <div style={{ maxWidth: '300px', margin: '0 auto' }}>
+            <SleepyTrain />
+            </div>
+        )}
       </div>
     </div>
   );

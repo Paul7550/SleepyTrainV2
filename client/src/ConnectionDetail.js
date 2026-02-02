@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './ConnectionDetail.css';
 import WakeUpCard from './WakeUpCard';
 
-function ConnectionDetail({ connection, onBack, onConfirmAlarm }) {
+function ConnectionDetail({ connection, onBack, onConfirmAlarm, defaultOffset, t }) {
   const [showStops, setShowStops] = useState(false);
 
   // Helper to format train names with arrows instead of commas
@@ -22,7 +22,7 @@ function ConnectionDetail({ connection, onBack, onConfirmAlarm }) {
               {connection.departure.station} → {connection.arrival.station}
             </div>
             <div className="route-meta">
-              <span>Dauer: {connection.duration}</span>
+              <span>{t.duration}: {connection.duration}</span>
               <span>{formatTrainNames(connection.trains)}</span>
             </div>
           </div>
@@ -37,14 +37,14 @@ function ConnectionDetail({ connection, onBack, onConfirmAlarm }) {
               <div className="marker-col"><div className="dot-start"></div></div>
               <div className="info-col">
                 <div className="station-title">{connection.departure.station}</div>
-                <div className="platform-badge">Gleis {connection.departure.platform}</div>
+                <div className="platform-badge">{t.platform} {connection.departure.platform}</div>
               </div>
             </div>
 
             {/* Stops Toggle */}
             <div className="stops-toggle-modern">
               <button onClick={() => setShowStops(!showStops)}>
-                {showStops ? '− Zwischenhalte ausblenden' : '+ Zwischenhalte anzeigen'}
+                {showStops ? t.hideStops : t.showStops}
               </button>
             </div>
 
@@ -55,7 +55,7 @@ function ConnectionDetail({ connection, onBack, onConfirmAlarm }) {
                   <div key={index} className="timeline-row transfer-row">
                     <div className="time-col">
                       <div>{stop.arrival}</div>
-                      <div style={{color: '#666', fontSize: '0.8rem'}}>bis</div>
+                      <div style={{color: '#666', fontSize: '0.8rem'}}>{t.to}</div>
                       <div>{stop.departure}</div>
                     </div>
                     <div className="marker-col">
@@ -65,11 +65,11 @@ function ConnectionDetail({ connection, onBack, onConfirmAlarm }) {
                       <div className="station-title">{stop.station}</div>
                       <div className="transfer-details">
                         <span className="transfer-icon">⇄</span> 
-                        Umstieg: {stop.duration} min
+                        {t.transfer}: {stop.duration} min
                       </div>
                       <div className="transfer-next-train">
-                        Weiter mit <strong>{stop.trainTo}</strong>
-                        {stop.platform && <span className="platform-badge ms-2">Gleis {stop.platform}</span>}
+                        {t.continueWith} <strong>{stop.trainTo}</strong>
+                        {stop.platform && <span className="platform-badge ms-2">{t.platform} {stop.platform}</span>}
                       </div>
                     </div>
                   </div>
@@ -93,13 +93,18 @@ function ConnectionDetail({ connection, onBack, onConfirmAlarm }) {
               <div className="marker-col"><div className="dot-end"></div></div>
               <div className="info-col">
                 <div className="station-title">{connection.arrival.station}</div>
-                <div className="platform-badge">Gleis {connection.arrival.platform}</div>
+                <div className="platform-badge">{t.platform} {connection.arrival.platform}</div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <WakeUpCard connection={connection} onConfirmAlarm={onConfirmAlarm} />
+      <WakeUpCard 
+        connection={connection} 
+        onConfirmAlarm={onConfirmAlarm} 
+        defaultOffset={defaultOffset}
+        t={t}
+      />
     </>
   );
 }
