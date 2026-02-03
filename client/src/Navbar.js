@@ -8,7 +8,7 @@ function Navbar({ onSettingsClick, toggleDarkMode, isDarkMode, t }) {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-oebb-gradient">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-oebb-gradient" style={{ position: 'relative', zIndex: 1000 }}>
       <div className="container-fluid position-relative">
         <div className="d-flex justify-content-center w-100">
           <a className="navbar-brand fw-bold fs-3" href="#home">Sleepy Train</a>
@@ -23,7 +23,7 @@ function Navbar({ onSettingsClick, toggleDarkMode, isDarkMode, t }) {
               &#9881;
             </button>
             {showDropdown && (
-              <ul className="dropdown-menu show dropdown-menu-end" style={{ position: 'absolute', right: 0, top: '100%' }}>
+              <ul className="dropdown-menu show dropdown-menu-end" style={{ position: 'absolute', right: 0, top: '100%', zIndex: 1050 }}>
                 <li>
                   <button className="dropdown-item d-flex align-items-center" onClick={() => { onSettingsClick(); setShowDropdown(false); }}>
                     <span style={{ marginRight: '10px', fontSize: '1.2rem' }}>&#9881;</span>
