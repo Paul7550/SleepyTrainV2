@@ -228,11 +228,6 @@ function App() {
                   ))
                 ) : (
                   <>
-                    <ConnectionCard
-                      connection={testConnection}
-                      onSelect={setSelectedConnection}
-                    />
-                    <SkeletonCard />
                   </>
                 )
               )}
