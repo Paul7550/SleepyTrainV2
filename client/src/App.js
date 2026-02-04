@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import Navbar from './Navbar';
-import ConnectionSearch from './ConnectionSearch';
-import SleepyTrain from './SleepyTrain';
-import SkeletonCard from './SkeletonCard';
-import ConnectionCard from './ConnectionCard';
-import ConnectionDetail from './ConnectionDetail';
-import AlarmBanner from './AlarmBanner';
-import AlarmRinging from './AlarmRinging';
-import Settings from './Settings';
-import { translations } from './translations';
+import Navbar from './components/Navbar';
+import ConnectionSearch from './components/ConnectionSearch';
+import SleepyTrain from './components/SleepyTrain';
+import SkeletonCard from './components/SkeletonCard';
+import ConnectionCard from './components/ConnectionCard';
+import ConnectionDetail from './components/ConnectionDetail';
+import AlarmBanner from './components/AlarmBanner';
+import AlarmRinging from './components/AlarmRinging';
+import Settings from './components/Settings';
+import { translations } from './components/translations';
 
 function App() {
   const [selectedConnection, setSelectedConnection] = useState(null);
@@ -21,13 +21,17 @@ function App() {
   const [isAlarmRinging, setIsAlarmRinging] = useState(false);
   const [alarmTimerId, setAlarmTimerId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState({
-    defaultOffset: 10,
-    language: 'de',
-    sound: 'alarm.mp3',
-    vibration: true,
-    volume: 80,
-    isDarkMode: false
+  
+  const [settings, setSettings] = useState(() => {
+    const savedSettings = localStorage.getItem('settings');
+    return savedSettings ? JSON.parse(savedSettings) : {
+      defaultOffset: 10,
+      language: 'de',
+      sound: 'alarm.mp3',
+      vibration: true,
+      volume: 80,
+      isDarkMode: false
+    };
   });
 
   const audioRef = useRef(null);
@@ -52,6 +56,10 @@ function App() {
       { station: 'Amstetten', time: '09:20' }
     ]
   };
+
+  useEffect(() => {
+    localStorage.setItem('settings', JSON.stringify(settings));
+  }, [settings]);
 
   useEffect(() => {
     // Sync dark mode state with settings
