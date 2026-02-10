@@ -23,7 +23,6 @@ app.get('/api/trains',async function (req,res){
     const ziel = req.query.stop;
     const time = req.query.time;
     
-    console.log(`Suche Verbindung von ${start} nach ${ziel} ab ${time || 'jetzt'}`);
     const result = await getVerbindungen(start, ziel, time);
     res.json({
       status: "Erhalten",
@@ -56,6 +55,7 @@ async function getVerbindungen(startname, zielname, timeParam) {
     hafasClient.locations(startname, { results: 1 }),
     hafasClient.locations(zielname, { results: 1 })
   ]);
+  console.log(`Suche Verbindung von ${startStations[0].name} nach ${zielStations[0].name}`);
   console.timeEnd("Locations Suche");
 
   if (!startStations.length || !zielStations.length) {
@@ -160,8 +160,6 @@ async function getVerbindungen(startname, zielname, timeParam) {
   });
   return trains;
 }
-
-// TODO: Add API routes for train connections
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

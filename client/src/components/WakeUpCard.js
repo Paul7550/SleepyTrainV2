@@ -2,11 +2,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import './WakeUpCard.css';
 
 function WakeUpCard({ connection, onConfirmAlarm, defaultOffset, t }) {
-  const [wakeUpOffset, setWakeUpOffset] = useState(defaultOffset || 15); 
-  const [showCustomInput, setShowCustomInput] = useState(false);
-  const [customValue, setCustomValue] = useState(30); 
-
+  const [wakeUpOffset, setWakeUpOffset] = useState(defaultOffset || 15);
   const presetOptions = [5, 10, 15, 20];
+  const [showCustomInput, setShowCustomInput] = useState(!presetOptions.includes(defaultOffset));
+  const [customValue, setCustomValue] = useState(defaultOffset);
+
 
   useEffect(() => {
     if (defaultOffset) {
