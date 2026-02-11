@@ -6,6 +6,10 @@ function ConnectionCard({ connection, onSelect }) {
     e.preventDefault();
     onSelect(connection);
   };
+  const formatTrainNames = (trains) => {
+    if (!trains || trains.length === 0) return '';
+    return trains.map(train => train.replace(/\s*\(.*?\)/g, '').replace(/Zug-Nr\.?\s*\d+/g, '').trim()).join(' → ');
+  };
 
   return (
     <div className="connection-card">
@@ -22,9 +26,14 @@ function ConnectionCard({ connection, onSelect }) {
           </span>
         </div>
       </div>
-
+      <div className="train-info">
+          <span className="train-badge-card">
+            {formatTrainNames(connection.trains)}
+          </span>
+      </div>
       {/* Row 2: Duration and Details Link */}
       <div className="d-flex justify-content-between align-items-center">
+
         <div className="duration-info" style={{fontSize: '0.9rem'}}>
           Dauer: {connection.duration}
         </div>

@@ -89,7 +89,7 @@ async function getVerbindungen(startname, zielname, timeParam) {
     j.legs.forEach((leg, legIndex) => {
         // Collect train names
         if (leg.line && leg.line.name) {
-             const formattedName = formatTrainName(leg.line.name);
+             const formattedName = leg.line.name;
              if (!trainNames.includes(formattedName)) {
                  trainNames.push(formattedName);
              }
@@ -126,7 +126,7 @@ async function getVerbindungen(startname, zielname, timeParam) {
                 duration: duration,
                 type: 'transfer',
                 platform: nextLeg.departurePlatform,
-                trainTo: nextLeg.line ? formatTrainName(nextLeg.line.name) : 'Weiterfahrt'
+                trainTo: nextLeg.line ? nextLeg.line.name : 'Weiterfahrt'
             });
         }
     });

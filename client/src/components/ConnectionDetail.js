@@ -8,7 +8,7 @@ function ConnectionDetail({ connection, onBack, onConfirmAlarm, defaultOffset, t
   // Helper to format train names with arrows instead of commas
   const formatTrainNames = (trains) => {
     if (!trains || trains.length === 0) return '';
-    return trains.join(' → ');
+    return trains.map(train => train.replace(/\s*\(.*?\)/g, '').replace(/Zug-Nr\.?\s*\d+/g, '').trim()).join(' → ');
   };
 
   return (
