@@ -105,9 +105,15 @@ function App() {
     }
   };
 
-  const handleSearch = (from, to) => {
+  const handleSearch = (from, to, date, time) => {
     setSearchParams({ from, to });
-    fetchConnections(from, to);
+    let searchTime = null;
+    if (date && time) {
+        const dateTimeString = `${date}T${time}`;
+        const searchDate = new Date(dateTimeString);
+        searchTime = searchDate.getTime();
+    }
+    fetchConnections(from, to, searchTime);
   };
 
   const handleEarlier = () => {
