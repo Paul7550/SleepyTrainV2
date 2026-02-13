@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import './WakeUpCard.css';
+import DateTimePicker from './DateTimePicker';
 
 function WakeUpCard({ connection, onConfirmAlarm, defaultOffset, t }) {
   const [wakeUpOffset, setWakeUpOffset] = useState(defaultOffset || 15);
   const presetOptions = [5, 10, 15, 20];
   const [showCustomInput, setShowCustomInput] = useState(!presetOptions.includes(defaultOffset));
   const [customValue, setCustomValue] = useState(defaultOffset);
+  const [showDateTimePicker, setShowDateTimePicker] = useState(false);
 
 
   useEffect(() => {
@@ -57,6 +59,21 @@ function WakeUpCard({ connection, onConfirmAlarm, defaultOffset, t }) {
     }
   };
 
+  const handleManualAlarmConfirm = (date, time) => {
+    const wakeUpDateTime = new Date(`${date}T${time}`);
+    if (onConfirmAlarm) {
+        onConfirmAlarm({
+            wakeUpTime: wakeUpDateTime.toLocaleTimeString('de-AT', {
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            offset: 0, // No offset for manual alarm
+            connection: null // No connection for manual alarm
+        });
+    }
+    setShowDateTimePicker(false);
+  };
+
   return (
     <div className="wake-up-card">
       <h5 className="card-title">{t.setWakeUpTime}</h5>
@@ -104,6 +121,21 @@ function WakeUpCard({ connection, onConfirmAlarm, defaultOffset, t }) {
       <button className="btn-confirm" onClick={handleConfirm}>
         {t.confirm}
       </button>
+
+      <div className="manual-alarm-container">
+        <p>{t.orSetManualAlarm || 'Or set a manual alarm'}</p>
+        <button className="btn-manual-alarm" onClick={() => setShowDateTimePicker(true)}>
+          {t.setAlarm || 'Set Alarm'}
+        </button>
+      </div>
+
+      {showDateTimePicker && (
+        <DateTimePicker
+            onConfirm={handleManualAlarmConfirm}
+            onCancel={() => setShowDateTimePicker(false)}
+            t={t}
+        />
+      )}
     </div>
   );
 }

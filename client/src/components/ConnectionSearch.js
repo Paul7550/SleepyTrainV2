@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import './ConnectionSearch.css';
+import DateTimePicker from './DateTimePicker';
 
 function ConnectionSearch({ onSearch, onEarlier, onLater, t }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  const [searchDate, setSearchDate] = useState('');
+  const [searchTime, setSearchTime] = useState('');
+  const [showDateTimePicker, setShowDateTimePicker] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSearch) {
-      onSearch(from, to);
+      onSearch(from, to, searchDate, searchTime);
     }
   };
 
@@ -16,6 +20,19 @@ function ConnectionSearch({ onSearch, onEarlier, onLater, t }) {
     const temp = from;
     setFrom(to);
     setTo(temp);
+  };
+
+  const handleDateTimeConfirm = (date, time) => {
+    setSearchDate(date);
+    setSearchTime(time);
+    setShowDateTimePicker(false);
+  };
+
+  const formatDateTimeDisplay = () => {
+    if (searchDate && searchTime) {
+      return `${searchDate} ${searchTime}`;
+    }
+    return t.now || 'Now'; // Fallback if translation missing
   };
 
   return (
@@ -68,6 +85,16 @@ function ConnectionSearch({ onSearch, onEarlier, onLater, t }) {
             />
           </div>
 
+          <div className="mb-4">
+            <button
+                type="button"
+                className="btn btn-outline-secondary w-100"
+                onClick={() => setShowDateTimePicker(true)}
+            >
+                {formatDateTimeDisplay()}
+            </button>
+          </div>
+
           <div className="d-grid">
             <button type="submit" className="btn btn-search">
               {t.searchButton}
@@ -84,6 +111,14 @@ function ConnectionSearch({ onSearch, onEarlier, onLater, t }) {
           </button>
         </div>
       </div>
+
+      {showDateTimePicker && (
+        <DateTimePicker
+            onConfirm={handleDateTimeConfirm}
+            onCancel={() => setShowDateTimePicker(false)}
+            t={t}
+        />
+      )}
     </div>
   );
 }
